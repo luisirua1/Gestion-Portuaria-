@@ -306,6 +306,50 @@
             </section>
 
             <section class="card">
+                <h2>🌊 Control de Lastre Manual</h2>
+
+                <div style="margin-bottom: 20px;">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                        <span style="font-size: 13px;">Tanque Izquierdo: <b id="txtLastreIzq">0</b>t</span>
+                        <div>
+                            <button onclick="ajustarLastre('izq', 5)"
+                                style="background:#2ecc71; border:none; border-radius:4px; cursor:pointer; color:white; font-weight:bold;">+5t</button>
+                            <button onclick="ajustarLastre('izq', -5)"
+                                style="background:#e67e22; border:none; border-radius:4px; cursor:pointer; color:white; font-weight:bold;">-5t</button>
+                            <button onclick="resetLastre('izq')"
+                                style="background:#e74c3c; border:none; border-radius:4px; cursor:pointer; color:white; font-weight:bold;">R</button>
+                        </div>
+                    </div>
+                    <div
+                        style="width:100%; background:rgba(0,0,0,0.3); height:12px; border-radius:6px; overflow:hidden; border:1px solid rgba(100,255,218,0.2);">
+                        <div id="barLastreIzq"
+                            style="width:0%; height:100%; background:#64ffda; transition: width 0.3s;"></div>
+                    </div>
+                </div>
+
+                <div>
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                        <span style="font-size: 13px;">Tanque Derecho: <b id="txtLastreDer">0</b>t</span>
+                        <div>
+                            <button onclick="ajustarLastre('der', 5)"
+                                style="background:#2ecc71; border:none; border-radius:4px; cursor:pointer; color:white; font-weight:bold;">+5t</button>
+                            <button onclick="ajustarLastre('der', -5)"
+                                style="background:#e67e22; border:none; border-radius:4px; cursor:pointer; color:white; font-weight:bold;">-5t</button>
+                            <button onclick="resetLastre('der')"
+                                style="background:#e74c3c; border:none; border-radius:4px; cursor:pointer; color:white; font-weight:bold;">R</button>
+                        </div>
+                    </div>
+                    <div
+                        style="width:100%; background:rgba(0,0,0,0.3); height:12px; border-radius:6px; overflow:hidden; border:1px solid rgba(100,255,218,0.2);">
+                        <div id="barLastreDer"
+                            style="width:0%; height:100%; background:#64ffda; transition: width 0.3s;"></div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="card">
                 <h2>📝 Historial de Operaciones (Pila)</h2>
                 <div id="logOperaciones">
                     <p>> Esperando movimientos...</p>

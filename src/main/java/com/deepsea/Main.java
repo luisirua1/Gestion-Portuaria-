@@ -62,11 +62,11 @@ public class Main {
             double momentoDer = miBarco.calcularMomentoLado(false);
             boolean esEstable = miBarco.esEstable();
 
-            // Ahora enviamos los números multiplicados por la distancia
+            // Enviamos el json incluyendo el lastre
             String jsonResponse = String.format(
                     Locale.US,
-                    "{\"izquierdo\": %.2f, \"derecho\": %.2f, \"esEstable\": %b}",
-                    momentoIzq, momentoDer, esEstable);
+                    "{\"izquierdo\": %.2f, \"derecho\": %.2f, \"esEstable\": %b, \"lastreIzq\": %.2f, \"lastreDer\": %.2f}",
+                    momentoIzq, momentoDer, esEstable, miBarco.getLastreIzq(), miBarco.getLastreDer());
             ctx.result(jsonResponse);
         });
 
@@ -78,6 +78,20 @@ public class Main {
         app.get("/api/camiones", ctx -> {
             ctx.result(gson.toJson(filaCamiones.getCamionesEnOrden()));
         });
+
+        // Rutas para los botones (+, -, R)
+        app.post("/api/lastre/ajustar", ctx -> {
+            boolean esIzq = ctx.queryParam("lado").equals("izq");
+            double cantidad = Double.parseDouble(ctx.queryParam("valor"));
+            miBarco.ajustarLastre(esIzq, cantidad);
+            ctx.status(200);
+        });
+
+        app.post("/api/lastre/reset", ctx -> {
+            boolean esIzq = ctx.queryParam("lado").equals("izq");
+            miBarco.resetLastre(esIzq);
+            ctx.status(200);
+        });
         // ---------------------------------------------------------
 
         // 3. Menú Principal por Consola (Sigue igual)
@@ -85,7 +99,7 @@ public class Main {
         int opcion = 0;
 
         // Ahora el ciclo se rompe con el 7
-        while (opcion != 8) {
+        while (opcion != 9) {
             System.out.println("\n--- SISTEMA PORTUARIO DEEPSEA ---");
             System.out.println("1. Registrar llegada de Camiones");
             System.out.println("2. Visualizar estado del Barco (Consola)");
@@ -94,7 +108,8 @@ public class Main {
             System.out.println("5. Reporte de Estabilidad");
             System.out.println("6. Deshacer último movimiento"); // Bajó al puesto 6
             System.out.println("7. Cargar Contenedor al Barco (Manual)");
-            System.out.println("8. Salir");
+            System.out.println("8. Bombeo de Lastre");
+            System.out.println("9. Salir");
             System.out.print("Seleccione una operacion : ");
 
             opcion = teclado.nextInt();
@@ -165,22 +180,15 @@ public class Main {
                     System.out.println("Estado de Estabilidad: " + (miBarco.esEstable() ? "SEGURO" : "RIESGO CRÍTICO"));
                     break;
 
-                case 6: // DESHACER ÚLTIMO MOVIMIENTO
-                    System.out.println("\n--- DESHACIENDO ÚLTIMA ACCIÓN ---");
+                case 6: // DESHACER SOLO CONTENEDORES
                     Movimiento ultimo = auditoria.pop();
-                    if (ultimo != null) {
-                        // 1. Devolver el contenedor al barco
+                    if (ultimo != null && ultimo.getContenedor() != null) {
                         miBarco.cargarContenedor(ultimo.getFila(), ultimo.getColumna(), ultimo.getContenedor());
-
-                        // 2. NUEVO: Devolver el camión a la fila de espera
-                        if (ultimo.getCamion() != null) {
+                        if (ultimo.getCamion() != null)
                             filaCamiones.encolar(ultimo.getCamion());
-                        }
-
-                        System.out.println("REVERTIDO: " + ultimo.getDescripcion());
-                        System.out.println("El contenedor ha vuelto al barco y el camión ha regresado a la fila.");
+                        System.out.println("REVERTIDO: Contenedor devuelto.");
                     } else {
-                        System.out.println("No hay movimientos para deshacer.");
+                        System.out.println("No hay movimientos de contenedores para deshacer.");
                     }
                     break;
 
@@ -201,7 +209,28 @@ public class Main {
                     System.out.println(">>> ÉXITO: Contenedor " + id + " cargado en (" + fila + "," + col + ")");
                     break;
 
-                case 8: // SALIR
+                case 8: // BOMBEO DE LASTRE MANUAL
+                    System.out.println("\n--- SISTEMA DE BOMBEO DE LASTRE ---");
+                    System.out.println("1. Bombear al tanque Izquierdo");
+                    System.out.println("2. Bombear al tanque Derecho");
+                    System.out.print("Seleccione tanque: ");
+                    int tanque = teclado.nextInt();
+                    System.out.print("Cantidad de agua a bombear (toneladas): ");
+                    double agua = teclado.nextDouble();
+
+                    boolean esIzq = (tanque == 1);
+                    if (miBarco.bombearLastre(esIzq, agua)) {
+                        System.out.println(">>> ÉXITO: Se han inyectado " + agua + "t de agua al tanque.");
+                        // Opcional: registrar en historial
+                        Movimiento movLastre = new Movimiento(null, null, 0, 0,
+                                "[LASTRE] Bombeo de " + agua + "t al tanque " + (esIzq ? "Izquierdo" : "Derecho"));
+                        auditoria.registrarAccion(movLastre);
+                    } else {
+                        System.out.println(">>> ERROR: Capacidad excedida. El tanque solo soporta 50t en total.");
+                    }
+                    break;
+
+                case 9: // SALIR (Asegúrate de cambiar el case de salida a 9 y el while a != 9)
                     System.out.println("Cerrando simulador DeepSea...");
                     app.stop();
                     break;

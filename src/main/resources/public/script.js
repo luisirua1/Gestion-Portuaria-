@@ -64,6 +64,7 @@ function actualizarInterfaz() {
         });
 
     // 2. ACTUALIZAR ESTABILIDAD (PANEL DERECHO)
+    // 2. ACTUALIZAR ESTABILIDAD (PANEL DERECHO)
     fetch('/api/estabilidad')
         .then(res => res.json())
         .then(data => {
@@ -73,15 +74,31 @@ function actualizarInterfaz() {
             const mensajeDiv = document.getElementById('estadoMensaje');
             if (data.esEstable) {
                 mensajeDiv.innerText = "ESTADO: SEGURO (✓)";
-                mensajeDiv.style.backgroundColor = "rgba(46, 204, 113, 0.2)"; // Verde translúcido
+                mensajeDiv.style.backgroundColor = "rgba(46, 204, 113, 0.2)";
                 mensajeDiv.style.color = "#2ecc71";
                 mensajeDiv.style.border = "1px solid #2ecc71";
             } else {
                 mensajeDiv.innerText = "⚠️ RIESGO DE VOLCAMIENTO ⚠️";
-                mensajeDiv.style.backgroundColor = "rgba(231, 76, 60, 0.2)"; // Rojo translúcido
+                mensajeDiv.style.backgroundColor = "rgba(231, 76, 60, 0.2)";
                 mensajeDiv.style.color = "#e74c3c";
                 mensajeDiv.style.border = "1px solid #e74c3c";
             }
+
+            // --- NUEVO: ACTUALIZAR BARRAS DE LASTRE ---
+            const lastreI = data.lastreIzq || 0;
+            const lastreD = data.lastreDer || 0;
+
+            // Actualizar textos
+            document.getElementById('txtLastreIzq').innerText = lastreI.toFixed(1);
+            document.getElementById('txtLastreDer').innerText = lastreD.toFixed(1);
+
+            // Calcular porcentajes (Máximo 50 toneladas)
+            const pctIzq = Math.min((lastreI / 50.0) * 100, 100);
+            const pctDer = Math.min((lastreD / 50.0) * 100, 100);
+
+            // Animar las barras
+            document.getElementById('barLastreIzq').style.width = pctIzq + '%';
+            document.getElementById('barLastreDer').style.width = pctDer + '%';
         });
 
     // 3. ACTUALIZAR HISTORIAL (PILA DE AUDITORÍA)
@@ -131,6 +148,20 @@ function actualizarInterfaz() {
                 patio.appendChild(cardC);
             });
         });
+
+
+}
+
+function ajustarLastre(lado, valor) {
+    fetch(`/api/lastre/ajustar?lado=${lado}&valor=${valor}`, { method: 'POST' })
+        .then(() => actualizarInterfaz());
+}
+
+function resetLastre(lado) {
+    if (confirm(`¿Desea vaciar el tanque ${lado}?`)) {
+        fetch(`/api/lastre/reset?lado=${lado}`, { method: 'POST' })
+            .then(() => actualizarInterfaz());
+    }
 }
 
 // Actualizar cada segundo (Tiempo Real)

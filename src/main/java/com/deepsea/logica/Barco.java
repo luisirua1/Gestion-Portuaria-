@@ -6,6 +6,11 @@ public class Barco {
     private final int FILAS = 5;
     private final int COLUMNAS = 5;
 
+    // --- NUEVO: SISTEMA DE LASTRE ---
+    private double lastreIzquierdo = 0.0;
+    private double lastreDerecho = 0.0;
+    private final double MAX_LASTRE = 50.0; // 50 toneladas máximo por tanque
+
     public Barco() {
         // Declaramos la matriz según la teoría de Java [cite: 877]
         secciones = new Pila[FILAS][COLUMNAS];
@@ -51,6 +56,10 @@ public class Barco {
             momentoDerecho += sumarPesoPila(f, 3) * 1.0; // Columna 3: Distancia 1
             momentoDerecho += sumarPesoPila(f, 4) * 2.0; // Columna 4: Distancia 2
         }
+
+        // --- NUEVO: EL AGUA DE LASTRE GENERA TORQUE EN EL EXTREMO (Distancia 2) ---
+        momentoIzquierdo += (lastreIzquierdo * 2.0);
+        momentoDerecho += (lastreDerecho * 2.0);
 
         double diferenciaMomento = Math.abs(momentoIzquierdo - momentoDerecho);
         double momentoMayor = Math.max(momentoIzquierdo, momentoDerecho);
@@ -102,6 +111,57 @@ public class Barco {
                 momento += sumarPesoPila(f, 4) * 2.0;
             }
         }
+        // Sumar el lastre
+        if (izquierdo)
+            momento += (lastreIzquierdo * 2.0);
+        else
+            momento += (lastreDerecho * 2.0);
+
         return momento;
+    }
+
+    // --- MÉTODOS DE BOMBEO ---
+    public boolean bombearLastre(boolean alIzquierdo, double toneladas) {
+        if (alIzquierdo) {
+            if (lastreIzquierdo + toneladas > MAX_LASTRE)
+                return false;
+            lastreIzquierdo += toneladas;
+        } else {
+            if (lastreDerecho + toneladas > MAX_LASTRE)
+                return false;
+            lastreDerecho += toneladas;
+        }
+        return true;
+    }
+
+    public double getLastreIzq() {
+        return lastreIzquierdo;
+    }
+
+    public double getLastreDer() {
+        return lastreDerecho;
+    }
+
+    // --- LÓGICA DE CONTROL MANUAL DE LASTRE ---
+    public boolean ajustarLastre(boolean esIzq, double cantidad) {
+        if (esIzq) {
+            double nuevoValor = lastreIzquierdo + cantidad;
+            if (nuevoValor < 0 || nuevoValor > MAX_LASTRE)
+                return false;
+            lastreIzquierdo = nuevoValor;
+        } else {
+            double nuevoValor = lastreDerecho + cantidad;
+            if (nuevoValor < 0 || nuevoValor > MAX_LASTRE)
+                return false;
+            lastreDerecho = nuevoValor;
+        }
+        return true;
+    }
+
+    public void resetLastre(boolean esIzq) {
+        if (esIzq)
+            lastreIzquierdo = 0;
+        else
+            lastreDerecho = 0;
     }
 }
