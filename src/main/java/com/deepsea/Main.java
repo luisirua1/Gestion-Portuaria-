@@ -140,6 +140,16 @@ public class Main {
                         Movimiento mov = new Movimiento(descargado, camionAsignado, f, c, reporte);
                         auditoria.registrarAccion(mov);
                         System.out.println(">>> OPERACIÓN REGISTRADA: " + reporte);
+                    } else {
+                        System.out.println(">>> ❌ ERROR: OPERACIÓN DENEGADA.");
+                        System.out.println(
+                                ">>> Posibles causas: La pila está vacía O sacar este contenedor genera un RIESGO DE VOLCAMIENTO (>30%).");
+
+                        // --- LA MAGIA: ENVIAMOS EL ERROR AL HISTORIAL DE LA WEB ---
+                        String mensajeAlerta = "❌ BLOQUEO: Descarga denegada en (" + f + "," + c
+                                + ") por riesgo de volcamiento.";
+                        Movimiento movError = new Movimiento(null, null, f, c, mensajeAlerta);
+                        auditoria.registrarAccion(movError);
                     }
                     break;
 
