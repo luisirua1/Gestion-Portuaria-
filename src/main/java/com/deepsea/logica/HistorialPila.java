@@ -1,46 +1,55 @@
 package com.deepsea.logica;
 
 public class HistorialPila {
-    private Movimiento[] log; // Antes era String[], ahora es Movimiento[]
-    private int top;
+    private Nodo<Movimiento> tope;
+    private int size;
+    private int capacidad;
 
     public HistorialPila(int capacidad) {
-        this.log = new Movimiento[capacidad];
-        this.top = -1;
+        this.capacidad = capacidad;
+        this.tope = null;
+        this.size = 0;
     }
 
-    // Ahora recibe un objeto Movimiento completo
     public void registrarAccion(Movimiento m) {
-        if (top < log.length - 1) {
-            log[++top] = m;
+        if (size < capacidad) {
+            Nodo<Movimiento> nuevo = new Nodo<>(m);
+            nuevo.setSiguiente(tope);
+            tope = nuevo;
+            size++;
         }
     }
 
     public Movimiento pop() {
-        if (top >= 0) {
-            return log[top--];
-        }
-        return null;
+        if (tope == null)
+            return null;
+        Movimiento extraido = tope.getDato();
+        tope = tope.getSiguiente();
+        size--;
+        return extraido;
     }
 
-    // Getters para que el HTML pueda leer los datos
     public Movimiento[] getLog() {
-        return log;
+        Movimiento[] arregloWeb = new Movimiento[size];
+        Nodo<Movimiento> actual = tope;
+        for (int i = size - 1; i >= 0; i--) {
+            arregloWeb[i] = actual.getDato();
+            actual = actual.getSiguiente();
+        }
+        return arregloWeb;
     }
 
     public int getTop() {
-        return top;
+        return size - 1;
     }
 
     public void mostrarHistorial() {
-        if (top == -1) {
-            System.out.println("El historial está vacío.");
-            return;
-        }
-        System.out.println("\n--- HISTORIAL DE MOVIMIENTOS ---");
-        for (int i = top; i >= 0; i--) {
-            Movimiento m = log[i];
-            System.out.println((i + 1) + ". " + m.getDescripcion() + " en (" + m.getFila() + ", " + m.getColumna() + ")");
+        Nodo<Movimiento> actual = tope;
+        int i = size;
+        while (actual != null) {
+            System.out.println(i + ". " + actual.getDato().getDescripcion());
+            actual = actual.getSiguiente();
+            i--;
         }
     }
 }

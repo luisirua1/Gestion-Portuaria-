@@ -44,6 +44,16 @@ public class Pila {
         }
     }
 
+    // verCima: alias en español de peek() — ver la cima sin extraer
+    public Contenedor verCima() {
+        return peek();
+    }
+
+    // estaVacia: retorna true si la pila no tiene ningún contenedor
+    public boolean estaVacia() {
+        return top == -1;
+    }
+
     // Método extra para saber el peso total de esta pila (útil para la validación
     // del 30%)
     public double getPesoTotal() {

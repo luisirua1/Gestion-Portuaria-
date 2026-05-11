@@ -1,78 +1,60 @@
 package com.deepsea.logica;
 
 public class ColaCamiones {
-    private Camion[] cola;
-    private int front;
-    private int rear;
+    private Nodo<Camion> frente;
+    private Nodo<Camion> fin;
     private int size;
     private int capacidad;
 
-    // Constructor
     public ColaCamiones(int capacidad) {
         this.capacidad = capacidad;
-        this.cola = new Camion[capacidad];
-        this.front = 0;
-        this.rear = -1;
+        this.frente = null;
+        this.fin = null;
         this.size = 0;
     }
 
-    // ENQUEUE: Registrar la llegada de un camión (Insertar)
     public void encolar(Camion camion) {
-        if (size == capacidad) {
-            System.out.println("Cola llena (Overflow). No hay espacio para más camiones.");
+        if (size >= capacidad)
             return;
+        Nodo<Camion> nuevo = new Nodo<>(camion);
+        if (frente == null) {
+            frente = nuevo;
+            fin = nuevo;
+        } else {
+            fin.setSiguiente(nuevo);
+            fin = nuevo;
         }
-
-        // Avanza rear manualmente
-        rear = rear + 1;
-
-        // Si se pasa del final, vuelve al inicio (Lógica Circular del PDF)
-        if (rear == capacidad) {
-            rear = 0;
-        }
-
-        cola[rear] = camion;
         size++;
         System.out.println("Camión " + camion.getPlaca() + " en fila.");
     }
 
-    // DEQUEUE: Despachar el camión (Eliminar del frente)
     public Camion desencolar() {
-        if (size == 0) {
-            System.out.println("No hay camiones esperando (Underflow).");
+        if (frente == null)
             return null;
-        }
-
-        Camion despachado = cola[front]; // Guardamos el camión antes de mover el frente
-        front = (front + 1) % capacidad;
+        Camion despachado = frente.getDato();
+        frente = frente.getSiguiente();
+        if (frente == null)
+            fin = null;
         size--;
-        return despachado; // Entregamos el camión al Main
+        return despachado;
     }
 
-    // PEEK: Ver qué camión sigue sin quitarlo de la fila
     public Camion verFrente() {
-        if (size == 0) {
-            return null;
-        }
-        return cola[front];
+        return (frente == null) ? null : frente.getDato();
     }
 
     public int getSize() {
         return size;
     }
 
-    // Método para el HTML: Devuelve los camiones en orden desde el primero hasta el
-    // último
-    // Método para el HTML: Devuelve los camiones en orden
     public Camion[] getCamionesEnOrden() {
-        Camion[] activos = new Camion[this.size];
-        int actual = this.front;
-
-        for (int i = 0; i < this.size; i++) {
-            activos[i] = this.cola[actual];
-            actual = (actual + 1) % this.cola.length; // Avanza en la cola circular
+        Camion[] activos = new Camion[size];
+        Nodo<Camion> actual = frente;
+        int i = 0;
+        while (actual != null) {
+            activos[i++] = actual.getDato();
+            actual = actual.getSiguiente();
         }
-
         return activos;
     }
 }
