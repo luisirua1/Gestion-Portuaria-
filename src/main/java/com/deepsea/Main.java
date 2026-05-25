@@ -16,8 +16,6 @@ public class Main {
         HistorialPila auditoria = new HistorialPila(100);
 
         // Carga estos contenedores de prueba para que el HTML no se vea vacío
-        // Carga Inicial Equilibrada (El barco arranca seguro)
-        // --- CARGA MAESTRA: ESTABLE Y OPERATIVA ---
 
         // EXTREMOS (Livianos - Distancia 2)
         miBarco.cargarContenedor(0, 0, new ContenedorEstandar("LIG-IZQ", 5.0));
