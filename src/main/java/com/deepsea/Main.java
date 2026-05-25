@@ -10,7 +10,7 @@ import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
-        // 1. Inicialización de Estructuras
+        // 1. Inicialización de Estructurasssss
         Barco miBarco = new Barco();
         ColaCamiones filaCamiones = new ColaCamiones(10);
         HistorialPila auditoria = new HistorialPila(100);
